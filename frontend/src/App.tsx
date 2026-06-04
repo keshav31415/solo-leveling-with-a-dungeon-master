@@ -12,7 +12,7 @@ import { CANVAS_WIDTH, CANVAS_HEIGHT } from './engine/types';
 import type { EntityData, NPCMovementConfig } from './engine/types';
 import './App.css';
 
-const API_URL = import.meta.env.VITE_API_URL ?? '${API_URL}';
+const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000';
 
 // IDs of entities that are inanimate objects (not NPCs you "talk" to)
 const INANIMATE_ENTITIES = new Set([
@@ -92,9 +92,9 @@ function App() {
       id: 'joohee_terror',
       type: 'position',
       fired: false,
-      condition: (eng) => {
-        const player = eng.getEntityManager().getPlayer();
-        return player !== null && player.gridY < 30;
+      condition: (_eng) => {
+        const player = engineRef.current?.getEntityManager().getPlayer();
+        return player != null && player.gridY < 30;
       },
       onFire: () => handleDirectorEvent('joohee_terror')
     });
@@ -104,7 +104,7 @@ function App() {
       id: 'commandments',
       type: 'action',
       fired: false,
-      condition: (eng, state) => {
+      condition: (_eng, state) => {
         return state.itemsInspected.includes('stone_tablet');
       },
       onFire: () => handleDirectorEvent('commandments')

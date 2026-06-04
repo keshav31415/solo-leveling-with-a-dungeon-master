@@ -36,7 +36,7 @@ export class GameEngine {
   private pathfinder: Pathfinder;
   private npcMovement: NPCMovementSystem;
 
-  private canvasRefs: GameCanvasRefs | null = null;
+  private _canvasRefs: GameCanvasRefs | null = null;
   private contexts: {
     baseMap: CanvasRenderingContext2D;
     paint: CanvasRenderingContext2D;
@@ -56,7 +56,7 @@ export class GameEngine {
   // Callbacks to React
   private onDialogue: DialogueCallback | null = null;
   private onInteract: InteractCallback | null = null;
-  private onTriggerEvent: TriggerEventCallback | null = null;
+  private _onTriggerEvent: TriggerEventCallback | null = null;
 
   // Action tracking for triggers
   private actionsTaken: number = 0;

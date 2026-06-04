@@ -15,11 +15,13 @@ interface InternalConfig extends NPCMovementConfig {
 
 export class NPCMovementSystem {
   private configs: Map<string, InternalConfig> = new Map();
+  private entityManager: EntityManager;
+  private pathfinder: Pathfinder;
 
-  constructor(
-    private entityManager: EntityManager,
-    private pathfinder: Pathfinder,
-  ) {}
+  constructor(entityManager: EntityManager, pathfinder: Pathfinder) {
+    this.entityManager = entityManager;
+    this.pathfinder = pathfinder;
+  }
 
   setMovement(entityId: string, config: NPCMovementConfig) {
     const entity = this.entityManager.getEntity(entityId);

@@ -12,6 +12,8 @@ import { CANVAS_WIDTH, CANVAS_HEIGHT } from './engine/types';
 import type { EntityData, NPCMovementConfig } from './engine/types';
 import './App.css';
 
+const API_URL = import.meta.env.VITE_API_URL ?? '${API_URL}';
+
 // IDs of entities that are inanimate objects (not NPCs you "talk" to)
 const INANIMATE_ENTITIES = new Set([
   'giant_statue', 'stone_tablet', 'guard_statue_left', 'guard_statue_right',
@@ -58,7 +60,7 @@ function App() {
   // Create engine and setup callbacks
   useEffect(() => {
     // Treat every page load as a fresh game — backend memory resets to match frontend state
-    fetch('http://localhost:8000/api/reset', { method: 'POST' }).catch(() => {});
+    fetch('${API_URL}/api/reset', { method: 'POST' }).catch(() => {});
 
     const engine = new GameEngine(
       DOUBLE_DUNGEON_MAP,
@@ -192,7 +194,7 @@ function App() {
     if (!gameState) return;
 
     try {
-      const response = await fetch('http://localhost:8000/api/action', {
+      const response = await fetch('${API_URL}/api/action', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -275,7 +277,7 @@ function App() {
     if (!gameState) return;
 
     try {
-      const response = await fetch('http://localhost:8000/api/action', {
+      const response = await fetch('${API_URL}/api/action', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

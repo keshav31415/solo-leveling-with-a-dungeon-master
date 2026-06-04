@@ -1,0 +1,19 @@
+[project]
+name = "solo-leveling-with-a-dungeon-master"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "chromadb>=1.4.1",
+    "google>=3.0.0",
+    "ipykernel>=7.1.0",
+    "langchain-core>=1.2.7",
+    "langchain-google-genai>=4.2.0",
+    "langgraph>=1.0.6",
+    "langsmith>=0.6.4",
+    "psycopg2-binary>=2.9.12",
+    "pydantic>=2.12.5",
+    "python-dotenv>=1.2.1",
+    "sqlalchemy>=2.0.50",
+]

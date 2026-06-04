@@ -1,0 +1,51 @@
+# Solo Leveling S1 Master Configuration
+# Integrated list of all existing and new IDs.
+
+locations:
+  - id: l_double_dungeon
+    name: "The C-Rank Double Dungeon"
+  - id: l_jinwoos_hospital
+    name: "Jinwoo's Hospital Room"
+  - id: l_hospital_ward
+    name: "Jinwoo's Mother's Hospital Room"
+  - id: l_demon_castle
+    name: "The Demon Castle (Instant Dungeon)"
+  - id: l_association_gymnasium
+    name: "Hunter Association Gymnasium"
+  - id: l_c_rank_instant_dungeon
+    name: "C-Rank Instant Dungeon"
+  - id: l_double_dungeon
+    name: "Double Dungeon"
+
+characters:
+  - id: c_sung_jinwoo
+    name: "Sung Jinwoo"
+  - id: c_yoo_jinho
+    name: "Yoo Jinho"
+  - id: c_the_system_administrator
+    name: "The Architect / System Admin"
+  - id: c_system_admin
+    name: "The System Administrator (Alternative ID)"
+  - id: c_go_gun_hee
+    name: "Chairman Go Gun-Hee"
+
+quests:
+  - id: q_survive_double_dungeon_and_gain_system
+    notes: "The initial survival and awakening in the hidden chamber."
+  - id: q_save_mother_from_eternal_sleep
+    notes: "The long-term goal to find the Holy Water of Life."
+  - id: q_daily_training
+    notes: "Focus on the physical toll: 100 pushups, 100 situps, 100 squats, and a 10km run."
+  - id: q_job_change_icarus
+    notes: "The moment Jinwoo enters the throne room to face the blood-red knights."
+
+items:
+  - id: i_kasakas_poison_fang
+    name: "Kasaka's Poison Fang"
+    notes: "The dagger obtained from the Blue-poison Fang Kasaka in the instant dungeon."
+  - id: i_holy_water_of_life
+    name: "Holy Water of Life"
+    notes: "The mystical elixir required to cure Eternal Slumber."
+  - id: i_kim_sangshiks_sword
+    name: "Kim Sangshik's Sword"
+    notes: "A standard-issue hunter sword found in the D-Rank dungeon."

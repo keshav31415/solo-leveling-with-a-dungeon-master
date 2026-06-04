@@ -1,0 +1,159 @@
+{
+    "locations": [
+        {
+            "location_id": "l_double_dungeon",
+            "name": "Double Dungeon",
+            "danger_level": "Cataclysmic",
+            "description": "A hidden, nightmarish chamber discovered within a seemingly ordinary C-rank dungeon. Its atmosphere is one of profound dread and despair, dominated by colossal, menacing statues that seem to watch every move. The air is thick with an oppressive, ancient power, and the silence is often broken only by the ominous creaking of stone or the distant, unsettling sounds of its monstrous inhabitants. It's a place where the rules of reality bend, and survival hinges on understanding the cryptic, deadly trials imposed by an unseen, omnipotent architect. Hope quickly dwindles, replaced by a chilling realization of overwhelming power and inescapable doom.",
+            "boss_entity": "Statue of God",
+            "exits": {
+                "entrance": "l_c_rank_dungeon_gate"
+            }
+        },
+        {
+            "location_id": "l_hospital_ward",
+            "name": "Jinwoo's Mother's Hospital Room",
+            "danger_level": "Safe",
+            "description": "A quiet, sterile room at the Seoul Medical Center where Park Kyung-hye is kept under life support due to Eternal Slumber.",
+            "boss_entity": null,
+            "exits": {
+                "hallway": "Hospital Corridor",
+                "view": "Seoul Cityscape"
+            }
+        },
+        {
+            "location_id": "l_jinwoos_hospital",
+            "name": "Jinwoo's Hospital Room",
+            "danger_level": "Safe",
+            "description": "A sterile, quiet hospital room, often filled with the soft beeping of medical equipment. For Sung Jinwoo, it's a place of frustrating confinement and a stark reminder of his weakness as the 'World's Weakest Hunter'. The atmosphere is one of quiet despair and longing for strength, contrasting sharply with the life-threatening dungeons he's forced to enter. It's where he often wakes up after near-death experiences, feeling the weight of his family's struggles and his own physical limitations.",
+            "boss_entity": null,
+            "exits": {
+                "corridor": "l_hospital_corridor",
+                "outside": "l_hospital_exterior"
+            }
+        },
+        {
+            "location_id": "l_demon_castle",
+            "name": "Demon Castle",
+            "danger_level": "S-Rank Equivalent",
+            "description": "A towering, infernal structure pulsating with dark magic and oppressive heat. Each of its 100 floors is a labyrinth of fire, brimstone, and powerful demon-type monsters. The air is thick with the stench of sulfur and the screams of the damned, making it an extremely perilous yet invaluable training ground for those strong enough to brave its depths. The atmosphere is one of constant threat and overwhelming power.",
+            "boss_entity": "Archdemon Baran",
+            "exits": {
+                "up": "Demon Castle 2nd Floor",
+                "down": "Gate Exit"
+            }
+        },
+        {
+            "location_id": "l_association_gymnasium",
+            "name": "Hunter Association Gymnasium",
+            "danger_level": "Safe",
+            "description": "A vast, state-of-the-art training facility within the Korean Hunter Association headquarters. In Season 1, this gymnasium served as a crucial site for hunter re-evaluations and specialized training. The air often hummed with the residual magic of powerful hunters, and the clanging of weapons against training dummies was a common sound. It featured advanced magical energy measurement devices and reinforced training areas designed to withstand high-level abilities. It was here that Sung Jinwoo's unprecedented growth began to be noticed, particularly during his re-evaluation and subsequent sparring sessions, making it a place of both intense physical exertion and quiet observation by Association officials.",
+            "boss_entity": null,
+            "exits": {
+                "main_hall": "l_association_headquarters_main_hall",
+                "locker_rooms": "l_association_locker_rooms",
+                "medical_bay": "l_association_medical_bay"
+            }
+        },
+        {
+            "location_id": "l_c_rank_instant_dungeon",
+            "name": "C-Rank Instant Dungeon",
+            "danger_level": "C-Rank",
+            "description": "A typical C-Rank Instant Dungeon, characterized by its dark, damp, and often cavernous or ruined stone environments. The air is thick with the scent of earth and decay, and the low growls of magic beasts echo through its winding passages. For most hunters, it's a perilous but routine hunt, filled with goblins, orcs, and other mid-tier magic beasts. The atmosphere is one of constant vigilance, with the ever-present threat of being overwhelmed by numbers or a stronger beast lurking in the shadows. The portal seals behind entrants, creating a sense of isolation and the need to clear the dungeon to escape.",
+            "boss_entity": "C-Rank Dungeon Boss",
+            "exits": {
+                "exit_portal": "real_world_location"
+            }
+        }
+    ],
+    "characters": [
+        {
+            "character_id": "c_sung_jinwoo",
+            "name": "Sung Jinwoo",
+            "role": "Hunter",
+            "hunter_rank": "E-Rank",
+            "disposition": "Initially timid and weak, but becomes fiercely determined, protective, and resourceful as he gains power.",
+            "secret_goal": "To become strong enough to protect his family, especially his mother from her Eternal Slumber, and ensure his sister's safety, by any means necessary."
+        },
+        {
+            "character_id": "c_yoo_jinho",
+            "name": "Yoo Jinho",
+            "role": "D-Rank Hunter, Sung Jinwoo's partner",
+            "hunter_rank": "D-Rank",
+            "disposition": "Loyal, earnest, somewhat naive, determined to prove himself",
+            "secret_goal": "To establish his own guild and gain his father's respect by achieving something independently, without relying on his family's wealth or influence."
+        },
+        {
+            "character_id": "c_the_system_administrator",
+            "name": "The Architect",
+            "role": "Creator and Overseer of the System; Proxy for the Shadow Monarch's will",
+            "hunter_rank": "N/A (Non-human entity, beyond human ranking)",
+            "disposition": "Calculating, enigmatic, seemingly impartial but actively guiding and testing its chosen vessel (Sung Jinwoo) through extreme trials to ensure his rapid growth and power acquisition.",
+            "secret_goal": "To prepare Sung Jinwoo as the next Shadow Monarch, a vessel capable of inheriting the full power and memories of the previous Shadow Monarch, in anticipation of the inevitable war between the Rulers and Monarchs."
+        },
+        {
+            "character_id": "c_go_gun_hee",
+            "name": "Go Gun-Hee",
+            "role": "Chairman of the Korean Hunter Association",
+            "hunter_rank": "Special Authority-Rank",
+            "disposition": "Honorable, wise, protective, burdened by responsibility, observant",
+            "secret_goal": "To protect humanity from the threat of gates and monsters, especially Korea, and to find a successor or a means to ensure their safety before his failing health incapacitates him. He closely monitors Sung Jinwoo's growth as a potential key to this future."
+        }
+    ],
+    "quests": [
+        {
+            "quest_id": "q_survive_double_dungeon_and_gain_system",
+            "title": "The Double Dungeon's Trial: Survive and Awaken",
+            "goal": "Decipher the ancient commandments within the Double Dungeon, survive the onslaught of the Stone Statues, and fulfill the final requirement to escape.",
+            "success_condition": "The protagonist successfully deciphers and adheres to all the commandments of the ancient statues, culminating in a desperate final act of defiance against the Statue of God. Despite facing overwhelming odds and near-death, the protagonist endures, proving their worthiness to a mysterious entity. Upon fulfilling the final requirement, the protagonist 'dies' but is immediately resurrected, gaining access to the 'System' and becoming a Player, forever changing their destiny.",
+            "reward_on_completion": "Access to the 'System' and the title of 'Player', granting unique abilities, stats, and quests."
+        },
+        {
+            "quest_id": "q_save_mother_from_eternal_sleep",
+            "title": "The Cure for Eternal Sleep",
+            "goal": "Acquire the 'Holy Water of Life' from the highest floors of the Demon Castle, a mythical elixir capable of curing any magical ailment, to awaken Sung Jinwoo's mother from her eternal slumber.",
+            "success_condition": "Sung Jinwoo successfully administers the 'Holy Water of Life' to his mother, Sung Il-Hwan, causing her to awaken from her eternal sleep and fully recover her health and consciousness.",
+            "reward_on_completion": "System Reward: +10 Strength, +10 Agility, +10 Perception. Title: 'Savior of the Family'. Unlocks access to the 'Demon King's Treasure Chest' (one-time reward)."
+        },
+        {
+            "quest_id": "q_daily_training",
+            "title": "Daily Quest: Preparing to Become Strong",
+            "goal": "Build physical endurance and strength through a repetitive daily regimen.",
+            "success_condition": "Complete 100 pushups, 100 situps, 100 squats, and a 10km run within the 24-hour limit.",
+            "reward_on_completion": "Status Recovery, 3 Stat Points, and 1 Random Loot Box."
+        },
+        {
+            "quest_id": "q_job_change_icarus",
+            "title": "Job Change Quest: The Chosen One",
+            "goal": "Enter the hidden throne room and prove your worthiness for a specific class.",
+            "success_condition": "Defeat the blood-red knights and survive the endless waves of enemies until the timer expires or the boss is defeated.",
+            "reward_on_completion": "Class Advancement (Shadow Monarch) and specific Job Skills."
+        }
+    ],
+    "items": [
+        {
+            "item_id": "i_kasakas_poison_fang",
+            "name": "Kasaka's Poison Fang",
+            "grade": "C-Rank",
+            "item_type": "Weapon",
+            "description": "A dagger made from the sharp fang of the Blue-venomed Fang Kasaka. It has a slight curve and a serrated edge.",
+            "effect": "Paralysis: 50% chance to immobilize the target. Bleed: Deals 1% of target's HP per second."
+        },
+        {
+            "item_id": "i_holy_water_of_life",
+            "name": "Holy Water of Life",
+            "grade": "S-Rank",
+            "item_type": "Consumable",
+            "description": "A mystical elixir brewed from rare ingredients found in the Demon Castle. It is known as the only cure for the Eternal Slumber disease.",
+            "effect": "Cures all status ailments and restores health to maximum. Specifically targets Eternal Slumber."
+        },
+        {
+            "item_id": "i_kim_sangshiks_sword",
+            "name": "Kim Sangshik's Sword",
+            "grade": "D-Rank",
+            "item_type": "Weapon",
+            "description": "A standard-issue hunter sword that was left behind in the D-Rank dungeon. It is sturdy but lacks any special magical properties.",
+            "effect": "None. Basic physical damage bonus based on Strength."
+        }
+    ]
+}

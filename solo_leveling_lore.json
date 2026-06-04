@@ -1,0 +1,93 @@
+{
+    "locations": [
+        {
+            "location_id": "l_double_dungeon",
+            "name": "The C-Rank Double Dungeon",
+            "danger_level": "C-Rank (initially perceived), S-Rank (true nature)",
+            "description": "What initially appears to be a standard C-Rank dungeon quickly reveals itself to be a terrifying, ancient, and hidden 'double dungeon'. The atmosphere shifts from a typical monster-infested cave to an ominous, vast chamber filled with colossal, menacing statues, emanating an overwhelming sense of divine power and dread. The air is thick with an oppressive aura, and the silence is broken only by the distant, heavy footsteps of the stone giants.",
+            "boss_entity": "Statue of God",
+            "exits": {
+                "exit_to_surface": "l_seoul_city"
+            },
+            "key_reward": "Player System Key"
+        },
+        {
+            "location_id": "l_jinwoos_hospital",
+            "name": "Jinwoo's Hospital Room",
+            "danger_level": "Low",
+            "description": "A sterile, quiet hospital room, filled with the faint scent of antiseptic. Sunlight filters through the window, illuminating dust motes in the air. It's a place of recovery and contemplation, a stark contrast to the dangerous world Jinwoo now inhabits.",
+            "boss_entity": null,
+            "exits": {
+                "hallway": "l_hospital_hallway"
+            },
+            "key_reward": null
+        },
+        {
+            "location_id": "l_hospital_ward",
+            "name": "Jinwoo's Mother's Hospital Room",
+            "danger_level": "Safe",
+            "description": "A small, sterile hospital room, dimly lit and quiet. The air is heavy with the scent of antiseptic and the soft hum of medical equipment. It's a place of quiet vigil for Jinwoo, a stark reminder of his mother's prolonged slumber and the heavy burden he carries.",
+            "boss_entity": null,
+            "exits": {
+                "door": "l_hospital_corridor"
+            },
+            "key_reward": null
+        },
+        {
+            "location_id": "l_demon_castle",
+            "name": "The Demon Castle (Instant Dungeon)",
+            "danger_level": "S-Rank",
+            "description": "A colossal, multi-tiered fortress shrouded in an oppressive, dark aura, accessible only through a special Instant Dungeon key. Each floor presents increasingly formidable demon-type monsters, designed to push even the strongest hunters to their limits. The atmosphere is one of constant peril and immense challenge, serving as a brutal training ground for rapid growth.",
+            "boss_entity": "Demon King Baran",
+            "exits": {
+                "portal": "Earth"
+            },
+            "key_reward": "Demon King's Key"
+        },
+        {
+            "location_id": "l_association_gymnasium",
+            "name": "Hunter Association Gymnasium",
+            "danger_level": "Safe",
+            "description": "A vast, high-ceilinged facility within the Hunter Association Headquarters, primarily used for hunter assessments, training, and large-scale meetings. The air often hums with the energy of active hunters, the clang of training equipment, or the hushed anticipation of a new raid briefing. It's a place of both rigorous preparation and strategic planning, designed to be functional and secure.",
+            "boss_entity": null,
+            "exits": {
+                "north": "l_association_headquarters",
+                "outside": "l_city_seoul"
+            },
+            "key_reward": null
+        },
+        {
+            "location_id": "l_c_rank_instant_dungeon",
+            "name": "C-Rank Instant Dungeon",
+            "danger_level": "C-Rank",
+            "description": "A temporary, magically generated dungeon that appears suddenly in the human world. Its interior is typically dark, damp, and filled with various C-Rank magic beasts. The air is thick with mana, and the sounds of combat echo through its winding passages, creating a tense and dangerous atmosphere.",
+            "boss_entity": "C-Rank Orc Shaman",
+            "exits": {
+                "dungeon_exit": "l_seoul_city"
+            },
+            "key_reward": null
+        }
+    ],
+    "characters": [
+        {
+            "character_id": "c_sung_jinwoo",
+            "name": "Sung Jinwoo",
+            "role": "Hunter, Shadow Monarch",
+            "hunter_rank": "E-Rank (initially), rapidly evolving beyond S-Rank",
+            "affiliation": "Hunters Association (initially), then Shadow Army",
+            "disposition": "Initially timid and weak, becomes determined, ruthless, and protective",
+            "secret_goal": "To become strong enough to protect his family and cure his mother, later to understand and master his powers"
+        },
+        {
+            "character_id": "c_yoo_jinho",
+            "name": "Yoo Jinho",
+            "role": "Sung Jinwoo's exclusive raid partner, Vice-Guild Master of Ahjin Guild",
+            "hunter_rank": "D-Rank",
+            "affiliation": "Ahjin Guild",
+            "disposition": "Loyal, supportive, somewhat naive, determined",
+            "secret_goal": "To prove his worth to his father and eventually become a guild master, initially by forming his own guild, then by helping Sung Jinwoo establish and lead the strongest guild."
+        }
+    ],
+    "quests": [],
+    "items": []
+}

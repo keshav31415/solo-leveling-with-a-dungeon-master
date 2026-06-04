@@ -36,7 +36,6 @@ export class GameEngine {
   private pathfinder: Pathfinder;
   private npcMovement: NPCMovementSystem;
 
-  private _canvasRefs: GameCanvasRefs | null = null;
   private contexts: {
     baseMap: CanvasRenderingContext2D;
     paint: CanvasRenderingContext2D;
@@ -56,7 +55,6 @@ export class GameEngine {
   // Callbacks to React
   private onDialogue: DialogueCallback | null = null;
   private onInteract: InteractCallback | null = null;
-  private _onTriggerEvent: TriggerEventCallback | null = null;
 
   // Action tracking for triggers
   private actionsTaken: number = 0;
@@ -89,7 +87,6 @@ export class GameEngine {
 
   /** Bind canvas elements from React */
   setCanvasRefs(refs: GameCanvasRefs) {
-    this.canvasRefs = refs;
     this.contexts = {
       baseMap: refs.baseMap.getContext('2d')!,
       paint: refs.paint.getContext('2d')!,
@@ -182,9 +179,7 @@ export class GameEngine {
   }
 
   /** Register trigger event callback */
-  setTriggerEventCallback(cb: TriggerEventCallback) {
-    this.onTriggerEvent = cb;
-  }
+  setTriggerEventCallback(_cb: TriggerEventCallback) {}
 
   // --- The Main Game Loop ---
 

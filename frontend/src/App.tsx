@@ -60,7 +60,7 @@ function App() {
   // Create engine and setup callbacks
   useEffect(() => {
     // Treat every page load as a fresh game — backend memory resets to match frontend state
-    fetch('${API_URL}/api/reset', { method: 'POST' }).catch(() => {});
+    fetch(`${API_URL}/api/reset`, { method: 'POST' }).catch(() => {});
 
     const engine = new GameEngine(
       DOUBLE_DUNGEON_MAP,
@@ -194,7 +194,7 @@ function App() {
     if (!gameState) return;
 
     try {
-      const response = await fetch('${API_URL}/api/action', {
+      const response = await fetch(`${API_URL}/api/action`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -277,7 +277,7 @@ function App() {
     if (!gameState) return;
 
     try {
-      const response = await fetch('${API_URL}/api/action', {
+      const response = await fetch(`${API_URL}/api/action`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

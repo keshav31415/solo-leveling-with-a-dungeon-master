@@ -5,9 +5,9 @@ from typing import Dict, List, Any
 from .schemas import (
     RuntimeMemory, SceneChronicle,
     RelationshipState, MemoryCandidate,
-    DialogueTurn,
+    DialogueTurn, NPCMemoryEntry,
 )
-from .db import get_session, init_db, RuntimeMemoryRow, SceneChronicleRow, StoryCanonRow
+from .db import get_session, init_db, RuntimeMemoryRow, SceneChronicleRow, StoryCanonRow, NPCMemoryRow
 
 _MAX_CANDIDATES = 100
 _BUFFER_SIZE    = 3
@@ -27,6 +27,8 @@ class MemoryStore:
         init_db()
         self._runtime = self._load_runtime()
         self._buffer: Dict[str, List[DialogueTurn]] = {}
+        # Snapshot of relationship values at scene start — used to compute delta at scene end
+        self._relationship_start: Dict[str, Dict[str, int]] = {}
 
     # ── Dialogue buffer (ephemeral, never persisted) ───────────────────────────
 
@@ -105,6 +107,7 @@ class MemoryStore:
             "situation":       self._runtime.current_situation,
             "canon_facts":     self._load_canon_facts(),
             "dialogue_buffer": self.get_dialogue_buffer(npc_id),
+            "past_memory":     self.get_npc_past_memory(npc_id),
         }
 
     def get_event_context(self) -> dict:
@@ -151,6 +154,7 @@ class MemoryStore:
     def reset_runtime(self, new_scene_id: str = "") -> None:
         self._runtime = RuntimeMemory(scene_id=new_scene_id or _SCENE_ID)
         self._buffer.clear()
+        self._relationship_start.clear()
         self._save_runtime()
 
     # ── Full reset (new game) ──────────────────────────────────────────────────
@@ -158,7 +162,60 @@ class MemoryStore:
     def reset(self) -> None:
         self._runtime = RuntimeMemory(scene_id=_SCENE_ID)
         self._buffer.clear()
+        self._relationship_start.clear()
         self._save_runtime()
+
+    # ── NPC Memory ─────────────────────────────────────────────────────────────
+
+    def snapshot_relationships(self) -> None:
+        """Call at scene start to record baseline relationship values for delta computation."""
+        self._relationship_start = {
+            npc_id: rel.model_dump()
+            for npc_id, rel in self._runtime.relationships.items()
+        }
+
+    def compute_relationship_delta(self, npc_id: str) -> Dict[str, int]:
+        start = self._relationship_start.get(npc_id, {"trust": 50, "fear": 0, "respect": 50})
+        current = self.get_relationship(npc_id).model_dump()
+        return {k: current[k] - start[k] for k in current if current[k] != start[k]}
+
+    def get_npcs_with_interactions(self) -> List[str]:
+        return list(self._buffer.keys())
+
+    def save_npc_memory(self, entry: NPCMemoryEntry) -> None:
+        row_id = f"{entry.npc_id}__{entry.scene_id}"
+        with get_session() as session:
+            row = NPCMemoryRow(
+                id                 = row_id,
+                npc_id             = entry.npc_id,
+                scene_id           = entry.scene_id,
+                key_exchanges      = entry.key_exchanges,
+                relationship_delta = entry.relationship_delta,
+                shared_events      = entry.shared_events,
+                emotional_state    = entry.emotional_state,
+            )
+            session.merge(row)
+            session.commit()
+
+    def get_npc_past_memory(self, npc_id: str) -> List[NPCMemoryEntry]:
+        with get_session() as session:
+            rows = (
+                session.query(NPCMemoryRow)
+                .filter(NPCMemoryRow.npc_id == npc_id)
+                .order_by(NPCMemoryRow.created_at)
+                .all()
+            )
+            return [
+                NPCMemoryEntry(
+                    npc_id             = r.npc_id,
+                    scene_id           = r.scene_id,
+                    key_exchanges      = r.key_exchanges or [],
+                    relationship_delta = r.relationship_delta or {},
+                    shared_events      = r.shared_events or [],
+                    emotional_state    = r.emotional_state or "",
+                )
+                for r in rows
+            ]
 
     # ── DB persistence ─────────────────────────────────────────────────────────
 

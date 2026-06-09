@@ -66,6 +66,16 @@ class SceneChronicle(BaseModel):
     character_deaths:     List[str] = []
     mysteries_revealed:   List[str] = []
 
+# ── Level 2.5: NPC Memory ─────────────────────────────────────────────────────
+
+class NPCMemoryEntry(BaseModel):
+    npc_id:             str
+    scene_id:           str
+    key_exchanges:      List[str]      = []   # 3-5 significant dialogue moments (LLM-summarized)
+    relationship_delta: Dict[str, int] = {}   # {trust: +12, fear: -5, respect: +3}
+    shared_events:      List[str]      = []   # director event IDs this NPC witnessed
+    emotional_state:    str            = ""   # how NPC felt at scene end
+
 # ── Level 3: Story Canon ───────────────────────────────────────────────────────
 
 class CanonFact(BaseModel):
@@ -93,6 +103,25 @@ class NPCMovementDirective(BaseModel):
     wander_radius: Optional[int]             = None
     orbit_radius:  Optional[int]             = None
     waypoints:     Optional[List[Dict[str, int]]] = None  # [{x, y}, ...]
+
+# ── Director scene plan ────────────────────────────────────────────────────────
+
+class PlannedEvent(BaseModel):
+    id:            str
+    description:   str                    # director's note for the DM
+    trigger_type:  Literal["auto", "position", "interact", "chain", "action_count"]
+    trigger_value: Optional[str]  = None  # depends on type (see below)
+    delay_ms:      Optional[int]  = None  # for trigger_type="auto"
+    # trigger_value semantics:
+    #   position     → "player.gridY < 30"
+    #   interact     → entity_id string e.g. "stone_tablet"
+    #   chain        → event_id to chain after e.g. "commandments"
+    #   action_count → number as string e.g. "5"
+    #   auto         → null (use delay_ms instead)
+
+class ScenePlan(BaseModel):
+    scene_id: str
+    events:   List[PlannedEvent] = []
 
 # ── Call 1: Narrative response ─────────────────────────────────────────────────
 

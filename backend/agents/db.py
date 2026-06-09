@@ -1,5 +1,5 @@
 import os
-from sqlalchemy import create_engine, text, Column, String, DateTime, JSON
+from sqlalchemy import create_engine, Column, String, DateTime, JSON
 from sqlalchemy.orm import DeclarativeBase, Session
 from datetime import datetime, timezone
 from dotenv import load_dotenv
@@ -52,6 +52,27 @@ class StoryCanonRow(Base):
     category     = Column(String, nullable=False)
     scene_origin = Column(String, default="")
     created_at   = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+
+class NPCMemoryRow(Base):
+    __tablename__ = "npc_memory"
+
+    id                 = Column(String, primary_key=True)  # f"{npc_id}__{scene_id}"
+    npc_id             = Column(String, nullable=False)
+    scene_id           = Column(String, nullable=False)
+    key_exchanges      = Column(JSON, default=list)   # 3-5 significant dialogue moments
+    relationship_delta = Column(JSON, default=dict)   # {trust: +12, fear: -5, respect: +3}
+    shared_events      = Column(JSON, default=list)   # director event IDs witnessed
+    emotional_state    = Column(String, default="")   # how NPC ended the scene
+    created_at         = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+
+class ScenePlanRow(Base):
+    __tablename__ = "scene_plans"
+
+    scene_id   = Column(String, primary_key=True)
+    events     = Column(JSON, default=list)  # list of PlannedEvent dicts
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
 
 def init_db():

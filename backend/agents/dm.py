@@ -23,6 +23,21 @@ class DMAgent:
 
     # ── Call 1: Narrative prompt ───────────────────────────────────────────────
 
+    def _build_npc_memory_block(self, past_memory: list, _label: str) -> str:
+        if not past_memory:
+            return "  (no prior scenes with Jinwoo)"
+        lines = []
+        for entry in past_memory:
+            scene = entry.scene_id if hasattr(entry, 'scene_id') else entry.get('scene_id', '?')
+            state = entry.emotional_state if hasattr(entry, 'emotional_state') else entry.get('emotional_state', '')
+            exchanges = entry.key_exchanges if hasattr(entry, 'key_exchanges') else entry.get('key_exchanges', [])
+            delta = entry.relationship_delta if hasattr(entry, 'relationship_delta') else entry.get('relationship_delta', {})
+            delta_str = ", ".join(f"{k} {'+' if v > 0 else ''}{v}" for k, v in delta.items()) if delta else "no change"
+            lines.append(f"  [Scene: {scene}] Felt: {state} | Relationship shift: {delta_str}")
+            for ex in exchanges:
+                lines.append(f"    • {ex}")
+        return "\n".join(lines)
+
     def _npc_positions_block(self, entity_states: Dict[str, Any]) -> str:
         lines = []
         for eid, data in entity_states.items():
@@ -33,27 +48,28 @@ class DMAgent:
                 )
         return "\n".join(lines) if lines else "  (no NPCs)"
 
-    def _build_narrative_prompt(self, state: Dict[str, Any], action: Dict[str, Any]) -> str:
+    def _build_narrative_prompt(self, state: Dict[str, Any], action: Dict[str, Any], director_note: str = "") -> str:
         action_type = action.get("action_type", "")
         target_id   = action.get("target", "")
 
         if action_type == "director_event":
-            return self._director_event_prompt(target_id, state)
+            return self._director_event_prompt(target_id, state, director_note)
         if action_type == "interact":
             return self._interact_prompt(state, action, target_id)
 
         return f"Current Game State:\n{state}\n\nPlayer's Action:\n{action}\n\nGenerate the response."
 
-    def _director_event_prompt(self, event_name: str, state: Dict[str, Any]) -> str:
+    def _director_event_prompt(self, event_name: str, state: Dict[str, Any], director_note: str = "") -> str:
         ctx = self.memory.get_event_context()
 
         world_block     = "\n".join(f"  {k}: {v}" for k, v in ctx["world_state"].items()) or "  (none yet)"
         events_block    = "\n".join(f"  - {e}" for e in ctx["events_fired"]) or "  (none yet)"
         knowledge_block = "\n".join(f"  - {k}" for k in ctx["knowledge"]) or "  (none yet)"
         npc_block       = self._npc_positions_block(state.get("entity_states", {}))
+        note_block      = f"\nDirector's note (execute this — do not deviate):\n  {director_note}\n" if director_note else ""
 
         return f"""Event to narrate: {event_name}
-
+{note_block}
 Current situation:
   {ctx["situation"] or "(scene just started)"}
 
@@ -106,7 +122,9 @@ Generate the response."""
         else:
             buffer_block = "  (no prior exchanges this session)"
 
-        npc_block = self._npc_positions_block(state.get("entity_states", {}))
+        npc_block  = self._npc_positions_block(state.get("entity_states", {}))
+        past_memory = npc_ctx.get("past_memory", [])
+        memory_block = self._build_npc_memory_block(past_memory, label)
 
         return f"""You are responding AS: {label} (id: {target_id})
 ONLY this character speaks. Do NOT write responses from any other NPC.
@@ -125,6 +143,9 @@ YOUR RELATIONSHIP WITH SUNG JINWOO:
 
 STORY CANON:
 {canon_block}
+
+YOUR HISTORY WITH JINWOO (past scenes):
+{memory_block}
 
 RECENT EXCHANGES (last {len(buffer)} turns):
 {buffer_block}
@@ -237,7 +258,8 @@ React to THIS action. Your response MUST reflect the world state."""
         target_id   = action.get("target", "")
 
         # ── Call 1: Narrative ──────────────────────────────────────────────────
-        narrative_prompt = self._build_narrative_prompt(state, action)
+        director_note    = _instructions.get("director_note", "")
+        narrative_prompt = self._build_narrative_prompt(state, action, director_note)
         raw = generate_json(DM_SYSTEM_PROMPT, narrative_prompt)
         print("--- NARRATIVE RESPONSE ---")
         print(raw)

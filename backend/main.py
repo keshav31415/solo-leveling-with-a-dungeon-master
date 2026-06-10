@@ -45,7 +45,8 @@ from agents.prompts import CHRONICLE_SYSTEM_PROMPT, PROMOTION_SYSTEM_PROMPT, NPC
 from agents.schemas import parse_scene_chronicle, parse_promotion_decision, NPCMemoryEntry
 
 memory   = MemoryStore()
-director = DirectorAgent()
+memory.seed_lore_if_empty()
+director = DirectorAgent(memory)
 dm       = DMAgent(memory)
 
 current_director_instructions: Dict[str, Any] = {
@@ -117,12 +118,14 @@ Decide which to promote to Story Canon."""
     # 3. Generate NPC memory summaries for each NPC that had interactions
     npc_ids = memory.get_npcs_with_interactions()
     for npc_id in npc_ids:
-        buffer = memory.get_dialogue_buffer(npc_id)
-        if not buffer:
+        buf = memory.get_dialogue_buffer(npc_id)
+        if not buf.recent_turns and not buf.scene_summary:
             continue
 
         buf_lines = []
-        for turn in buffer:
+        if buf.scene_summary:
+            buf_lines.append(f"[Earlier conversation summary]: {buf.scene_summary}")
+        for turn in buf.recent_turns:
             if turn.jinwoo_says: buf_lines.append(f"Jinwoo says: \"{turn.jinwoo_says}\"")
             if turn.jinwoo_does: buf_lines.append(f"Jinwoo does: *{turn.jinwoo_does}*")
             buf_lines.append(f"{npc_id} responds: {turn.response}")

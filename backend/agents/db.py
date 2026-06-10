@@ -1,5 +1,5 @@
 import os
-from sqlalchemy import create_engine, Column, String, DateTime, JSON
+from sqlalchemy import create_engine, Column, String, DateTime, JSON, Boolean
 from sqlalchemy.orm import DeclarativeBase, Session
 from datetime import datetime, timezone
 from dotenv import load_dotenv
@@ -73,6 +73,22 @@ class ScenePlanRow(Base):
     scene_id   = Column(String, primary_key=True)
     events     = Column(JSON, default=list)  # list of PlannedEvent dicts
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+
+class LoreFactRow(Base):
+    __tablename__ = "lore_facts"
+
+    id                  = Column(String, primary_key=True)
+    fact                = Column(String, nullable=False)
+    category            = Column(String, nullable=False)   # character|world|event|rule|relationship|ability
+    scene_relevance     = Column(JSON, default=list)       # ["double_dungeon"] or ["all"]
+    characters_involved = Column(JSON, default=list)       # ["joohee", "jinwoo"]
+    entities_involved   = Column(JSON, default=list)       # ["giant_statue", "stone_tablet"]
+    tier                = Column(String, nullable=False)   # mandatory|structural|contextual
+    temporal_status     = Column(String, default="always_true")  # always_true|currently_true|was_true
+    superseded          = Column(Boolean, default=False)
+    superseded_by       = Column(String, nullable=True)    # canon fact ID that contradicted this
+    created_at          = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
 
 def init_db():

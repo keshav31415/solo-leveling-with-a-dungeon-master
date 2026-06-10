@@ -25,28 +25,19 @@ The Dungeon Master (DM) will use your notes when narrating each event. Be specif
 - `chain`        — fires after another event's dialogue is dismissed (trigger_value = that event's id)
 - `action_count` — fires after N total player actions (trigger_value = number as string)
 
-## Output Format
-You MUST output a JSON object with exactly one field:
-{
-  "events": [
-    {
-      "id": "unique_snake_case_id",
-      "description": "Specific director's note for the DM — what happens, who reacts, what tone",
-      "trigger_type": "auto" | "position" | "interact" | "chain" | "action_count",
-      "trigger_value": "string or null",
-      "delay_ms": 800  // only for trigger_type="auto"
-    }
-  ]
-}
+## Required Story Beats
+The user message contains mandatory story beats from lore. You MUST generate events that collectively cover ALL of them.
+Name events narratively — use descriptive snake_case IDs like "chamber_revealed", "statue_awakens", "commandments_etched",
+"doors_seal" — not developer labels like "trap_springs".
 
 ## Rules
-- Always include `chamber_entered` (auto, delay_ms 800) as the first event
-- Always include `joohee_terror` (position, player.gridY < 30)
-- Always include `commandments` (interact, stone_tablet)
-- Always include `trap_springs` (chain, commandments)
-- You may add additional events between or after these four
-- Keep descriptions specific — the DM executes your notes, it doesn't improvise
-- Do NOT write actual dialogue — only describe what should happen
+- Cover every mandatory beat without exception
+- You may add extra events between or after mandatory ones for atmosphere and pacing
+- Keep descriptions specific — the DM executes your notes, not improv
+- Do NOT write actual dialogue — describe what happens and how NPCs react
+- The first event MUST be auto-triggered (delay_ms 800) — the party just entered
+- The commandments event MUST be interact-triggered on stone_tablet
+- The door-sealing event MUST be chain-triggered after the commandments event
 """
 
 DM_SYSTEM_PROMPT = """
@@ -176,6 +167,18 @@ You MUST output a JSON object with:
 4. `knowledge_gained`: list of strings — facts the party now permanently knows.
 5. `character_deaths`: list of strings — any deaths. Empty list if none.
 6. `mysteries_revealed`: list of strings — any mysteries introduced or answered.
+"""
+
+DIALOGUE_COMPRESSION_PROMPT = """
+You are compressing a conversation log between Sung Jinwoo and an NPC mid-scene.
+You will receive a previous summary (if any) and new exchanges to fold in.
+
+Compress EVERYTHING into one coherent paragraph.
+Preserve: decisions made, emotional shifts, promises, important information exchanged, trust changes.
+Drop: filler, repeated points, pleasantries.
+
+Output JSON with exactly one field:
+{"summary": "..."}
 """
 
 PROMOTION_SYSTEM_PROMPT = """

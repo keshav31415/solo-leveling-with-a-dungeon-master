@@ -67,11 +67,15 @@ class DMAgent:
         knowledge_block = "\n".join(f"  - {k}" for k in ctx["knowledge"]) or "  (none yet)"
         npc_block       = self._npc_positions_block(state.get("entity_states", {}))
         note_block      = f"\nDirector's note (execute this — do not deviate):\n  {director_note}\n" if director_note else ""
+        lore_block      = "\n".join(f"  - {f}" for f in ctx.get("lore_facts", [])) or "  (none)"
 
         return f"""Event to narrate: {event_name}
 {note_block}
 Current situation:
   {ctx["situation"] or "(scene just started)"}
+
+LORE — ground truth about this dungeon (memory overrides if contradicted):
+{lore_block}
 
 World state:
 {world_block}
@@ -107,27 +111,31 @@ Generate the response."""
         world_block     = "\n".join(f"  {k}: {v}" for k, v in npc_ctx["world_state"].items()) or "  (none yet)"
         events_block    = "\n".join(f"  - {e}" for e in npc_ctx["events_fired"]) or "  (none yet)"
         knowledge_block = "\n".join(f"  - {k}" for k in npc_ctx["knowledge"]) or "  (none yet)"
-        canon_block     = "\n".join(f"  - {f}" for f in npc_ctx["canon_facts"]) or "  (none yet)"
+        canon_block = "\n".join(f"  - {f}" for f in npc_ctx["canon_facts"]) or "  (none yet)"
+        lore_block  = "\n".join(f"  - {f}" for f in npc_ctx.get("lore_facts", [])) or "  (none)"
 
-        buffer = npc_ctx["dialogue_buffer"]
-        if buffer:
-            buf_lines = []
-            for t in buffer:
-                parts = []
-                if t.jinwoo_says: parts.append(f'says: "{t.jinwoo_says}"')
-                if t.jinwoo_does: parts.append(f"*{t.jinwoo_does}*")
-                if parts: buf_lines.append(f"  [Jinwoo]: {' | '.join(parts)}")
-                buf_lines.append(f"  [{label}]: {t.response}")
-            buffer_block = "\n".join(buf_lines)
-        else:
-            buffer_block = "  (no prior exchanges this session)"
+        buf = npc_ctx["dialogue_buffer"]   # NPCDialogueBuffer
+        buf_lines = []
+        if buf.scene_summary:
+            buf_lines.append(f"  [Earlier in scene — compressed]: {buf.scene_summary}")
+            buf_lines.append("")
+        for t in buf.recent_turns:
+            parts = []
+            if t.jinwoo_says: parts.append(f'says: "{t.jinwoo_says}"')
+            if t.jinwoo_does: parts.append(f"*{t.jinwoo_does}*")
+            if parts: buf_lines.append(f"  [Jinwoo]: {' | '.join(parts)}")
+            buf_lines.append(f"  [{label}]: {t.response}")
+        buffer_block = "\n".join(buf_lines) if buf_lines else "  (no prior exchanges this scene)"
 
-        npc_block  = self._npc_positions_block(state.get("entity_states", {}))
-        past_memory = npc_ctx.get("past_memory", [])
+        npc_block    = self._npc_positions_block(state.get("entity_states", {}))
+        past_memory  = npc_ctx.get("past_memory", [])
         memory_block = self._build_npc_memory_block(past_memory, label)
 
         return f"""You are responding AS: {label} (id: {target_id})
 ONLY this character speaks. Do NOT write responses from any other NPC.
+
+LORE — ground truth about this dungeon and your character (memory overrides if contradicted):
+{lore_block}
 
 WORLD STATE:
 {world_block}
@@ -147,7 +155,7 @@ STORY CANON:
 YOUR HISTORY WITH JINWOO (past scenes):
 {memory_block}
 
-RECENT EXCHANGES (last {len(buffer)} turns):
+CONVERSATION THIS SCENE ({buf.total_turns} exchanges total):
 {buffer_block}
 
 NPC positions (grid coordinates) — use for movement directives:

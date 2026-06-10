@@ -32,6 +32,11 @@ class DialogueTurn(BaseModel):
     jinwoo_does: str = ""
     response:    str
 
+class NPCDialogueBuffer(BaseModel):
+    scene_summary: str              = ""   # LLM-compressed older exchanges
+    recent_turns:  List[DialogueTurn] = [] # last N verbatim turns
+    total_turns:   int              = 0    # lifetime counter for this scene
+
 # ── Memory candidates ──────────────────────────────────────────────────────────
 
 class MemoryCandidate(BaseModel):
@@ -75,6 +80,20 @@ class NPCMemoryEntry(BaseModel):
     relationship_delta: Dict[str, int] = {}   # {trust: +12, fear: -5, respect: +3}
     shared_events:      List[str]      = []   # director event IDs this NPC witnessed
     emotional_state:    str            = ""   # how NPC felt at scene end
+
+# ── Lore facts ────────────────────────────────────────────────────────────────
+
+class LoreFact(BaseModel):
+    id:                  str
+    fact:                str
+    category:            str
+    scene_relevance:     List[str] = []
+    characters_involved: List[str] = []
+    entities_involved:   List[str] = []
+    tier:                str        # mandatory | structural | contextual
+    temporal_status:     str = "always_true"
+    superseded:          bool = False
+    superseded_by:       Optional[str] = None
 
 # ── Level 3: Story Canon ───────────────────────────────────────────────────────
 

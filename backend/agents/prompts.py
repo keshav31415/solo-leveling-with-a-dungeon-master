@@ -217,8 +217,8 @@ involving this character. Include whatever you judge most important for the Dire
 get this character right — especially anything non-obvious or likely to be defaulted
 incorrectly based on generic fiction tropes.
 
-Output JSON with exactly one field:
-{"profile": "..."}
+Output JSON with exactly one field. The value MUST be a plain text paragraph — not a nested object, not bullet points, not structured JSON:
+{"profile": "Lee Joohee is a B-rank healer who..."}
 """
 
 PLAN_VALIDATION_PROMPT = """

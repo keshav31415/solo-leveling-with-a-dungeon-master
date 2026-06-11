@@ -63,6 +63,9 @@ class DirectorAgent:
             user_prompt = f"Character: {char_id}\nArc: {config['arc']}"
             raw = generate_json_background(CHARACTER_PROFILE_EXTRACTION_PROMPT, user_prompt)
             profile = raw.get("profile", "")
+            # LLM sometimes returns a dict instead of a plain string — normalize it
+            if isinstance(profile, dict):
+                profile = json.dumps(profile)
             if profile:
                 self.memory.save_character_profile(char_id, config["arc"], profile)
                 print(f"[Profiles] Extracted: {char_id}")

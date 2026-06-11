@@ -24,8 +24,8 @@ _openrouter_client = OpenAIClient(
 ) if openrouter_key else None
 
 _BACKGROUND_MODELS = [
-    "google/gemini-2.0-flash-exp:free",
-    "meta-llama/llama-3.3-70b-instruct:free",
+    "google/gemini-2.0-flash-lite-001",
+    "meta-llama/llama-3.1-8b-instruct:free",
 ]
     
 @traceable(run_type="llm", name="Groq Call")
@@ -40,7 +40,7 @@ def generate_json(system_prompt: str, user_prompt: str) -> dict:
         models = [
             "llama-3.3-70b-versatile",
             "llama-3.1-8b-instant",
-            "gemma2-9b-it",
+            "llama3-8b-8192",
         ]
 
         last_exception = None

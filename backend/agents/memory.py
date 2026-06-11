@@ -218,6 +218,26 @@ class MemoryStore:
         self._relationship_start.clear()
         self._save_runtime()
 
+    def full_reset(self) -> None:
+        """Wipe all DB tables and reseed lore. Used on frontend refresh for a clean slate."""
+        from .db import (
+            ScenePlanRow, SceneChronicleRow, StoryCanonRow,
+            NPCMemoryRow, CharacterProfileRow, LoreFactRow,
+        )
+        with get_session() as session:
+            session.query(ScenePlanRow).delete()
+            session.query(SceneChronicleRow).delete()
+            session.query(StoryCanonRow).delete()
+            session.query(NPCMemoryRow).delete()
+            session.query(CharacterProfileRow).delete()
+            session.query(LoreFactRow).delete()
+            session.commit()
+        self._runtime = RuntimeMemory(scene_id=_SCENE_ID)
+        self._buffer.clear()
+        self._relationship_start.clear()
+        self._save_runtime()
+        self.reseed_lore()
+
     # ── NPC Memory ─────────────────────────────────────────────────────────────
 
     def snapshot_relationships(self) -> None:

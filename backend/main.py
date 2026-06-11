@@ -166,11 +166,11 @@ Summarize what this NPC will remember."""
 
 @app.post("/api/reset")
 def reset_memory(background_tasks: BackgroundTasks):
-    """Full reset — clears all memory and generates a new scene plan in the background."""
-    memory.reset()
+    """Full reset — wipes DB, reseeds lore, force-regenerates scene plan."""
+    memory.full_reset()
     memory.snapshot_relationships()
-    background_tasks.add_task(director.generate_scene_plan)
-    return {"status": "ok", "message": "Memory cleared. Scene plan generating."}
+    background_tasks.add_task(lambda: director.generate_scene_plan(force=True))
+    return {"status": "ok", "message": "Database cleared. Scene plan generating."}
 
 
 @app.post("/api/force_reset")

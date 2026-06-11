@@ -5,7 +5,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 INANIMATE_OBJECTS   = {"stone_tablet", "giant_statue", "entrance_door", "god_statue"}
-EVENTS_REQUIRING_JS = {"trap_springs"}
+EVENTS_REQUIRING_JS = {"trap_springs", "doors_seal", "laser_sweep", "hunter_killed_at_door"}
 
 # Fallback movement directives used when a critical event omits them
 FALLBACK_MOVEMENT_DIRECTIVES: Dict[str, List[Dict]] = {
@@ -15,6 +15,17 @@ FALLBACK_MOVEMENT_DIRECTIVES: Dict[str, List[Dict]] = {
         {"npc_id": "mr_park",     "behavior": "flee", "flee_from": "giant_statue", "step_cooldown": 10},
         {"npc_id": "mr_kim",      "behavior": "flee", "flee_from": "giant_statue", "step_cooldown": 10},
     ],
+    "doors_seal": [
+        {"npc_id": "joohee",      "behavior": "flee", "flee_from": "giant_statue", "step_cooldown": 8},
+        {"npc_id": "song_chiyul", "behavior": "flee", "flee_from": "giant_statue", "step_cooldown": 10},
+        {"npc_id": "mr_park",     "behavior": "flee", "flee_from": "giant_statue", "step_cooldown": 10},
+        {"npc_id": "mr_kim",      "behavior": "flee", "flee_from": "giant_statue", "step_cooldown": 10},
+    ],
+    "laser_sweep": [
+        {"npc_id": "joohee",      "behavior": "idle"},
+        {"npc_id": "song_chiyul", "behavior": "idle"},
+        {"npc_id": "mr_kim",      "behavior": "idle"},
+    ],
 }
 
 # Fallback game_actions used if Call 1 omits them for a critical event.
@@ -22,6 +33,19 @@ FALLBACK_GAME_ACTIONS: Dict[str, List[Dict]] = {
     "trap_springs": [
         {"type": "shake_screen",     "params": {"intensity": 10, "duration_ms": 500}},
         {"type": "set_entity_state", "params": {"entity_id": "entrance_door", "state": "closed"}},
+    ],
+    "doors_seal": [
+        {"type": "shake_screen",     "params": {"intensity": 10, "duration_ms": 500}},
+        {"type": "set_entity_state", "params": {"entity_id": "entrance_door", "state": "closed"}},
+    ],
+    "hunter_killed_at_door": [
+        {"type": "screen_flash",     "params": {"color": "#ff0000", "duration_ms": 200}},
+        {"type": "scorch_mark",      "params": {"entity_id": "entrance_door", "radius": 2}},
+    ],
+    "laser_sweep": [
+        {"type": "glow",             "params": {"entity_id": "giant_statue", "color": "#ff0000", "radius": 120, "duration_ms": 3000, "pulse": True}},
+        {"type": "ring",             "params": {"entity_id": "giant_statue", "color": "#ff4400", "max_radius": 400, "duration_ms": 3000}},
+        {"type": "scorch_mark",      "params": {"entity_id": "giant_statue", "radius": 8}},
     ],
 }
 

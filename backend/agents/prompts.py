@@ -95,11 +95,19 @@ You MUST output a JSON object with these fields:
    - `screen_flash`     — params: {color: string, duration_ms: number}
    - `scorch_mark`      — params: {entity_id: string, radius: number}
 
-Specific Event Instructions:
-- `chamber_entered`: Blue flames ignite one by one around the perimeter. The room is vast and silent. NO monsters anywhere. The party spreads out in confusion. Someone remarks this doesn't look like a D-rank dungeon. Speaker: NARRATOR. MUST output `new_situation`.
-- `joohee_terror`: Lee Joohee saw the God Statue's eyes move. She stutters in pure terror. Speaker: Lee Joohee. MUST output `new_situation`. MUST propose a memory candidate: { fact: "Lee Joohee witnessed the God Statue's eyes move", category: "knowledge" }. MUST include game_actions for the statue's eyes glowing red (use `glow` on `giant_statue`).
-- `commandments`: NARRATOR only. No NPC reactions. Zoom in on the stone tablet. The three commandments carved in ancient script: "Revere God." / "Praise God." / "Prove your devotion to God." Final line: "Any soul that fails to abide shall not leave this place alive." Describe the stone, the glow of the carvings, the weight of the words. MUST output `new_situation`. MUST propose a memory candidate: { fact: "The three commandments were revealed", category: "plot" }.
-- `trap_springs`: Massive stone doors slam shut. No escape. MUST output `new_situation`. MUST propose memory candidate. MUST include game_actions: shake_screen (intensity 10, duration_ms 500) AND set_entity_state (entrance_door → closed).
+Story Arc Guide — follow this when the Director's note describes these situations:
+
+CHAMBER ENTRY: Blue flames ignite one by one around the perimeter. Vast circular chamber, total silence — no monsters anywhere. The party spreads out in confusion. Someone remarks this doesn't look like a D-rank dungeon. Speaker: NARRATOR. MUST output new_situation.
+
+JOOHEE TERROR (statue eyes move): Lee Joohee sees the God Statue's eyes tracking the party. She freezes mid-step, gasps, stutters in pure terror. She backs away and grabs JINWOO's arm — NOT Song Chi-yul's. Jinwoo specifically. She clings to him. Speaker: Lee Joohee. MUST output new_situation. MUST propose memory candidate: { fact: "Lee Joohee witnessed the God Statue's eyes move", category: "knowledge" }. MUST include game_actions: glow on giant_statue (red, pulse: true).
+
+COMMANDMENTS: NARRATOR only. No NPC dialogue or reactions. The stone tablet's inscriptions glow. Three commandments in ancient script: "Revere God." / "Praise God." / "Prove your devotion to God." Final line carved beneath: "Any soul that fails to abide shall not leave this place alive." Describe the stone surface, the glow of the carvings, the cold weight of the words. MUST output new_situation. MUST propose memory candidate: { fact: "The three commandments were revealed — disobedience means death", category: "plot" }.
+
+DOORS SEAL: The entrance doors slam shut with a sound like a mountain collapsing. Stone grinding on stone. The divine trap was triggered the moment the commandments were read. No escape now. Screen shakes. Speaker: NARRATOR. MUST output new_situation. MUST include game_actions: shake_screen (intensity 10, duration_ms 500) AND set_entity_state (entrance_door → closed). MUST propose memory candidate: { fact: "The entrance door sealed — the party is trapped", category: "plot" }.
+
+HUNTER DEATH AT DOOR (Mr. Park panics): Mr. Park's composure shatters. He cannot take it. He breaks ranks and sprints for the sealed entrance — he does not believe the doors can hold. The guard statues flanking the door activate instantly the moment he crosses the threshold. He is cut down before he reaches it. No heroics. No last words. Just sudden, violent death. First blood. Speaker: NARRATOR. MUST output new_situation. MUST propose memory candidate: { fact: "Mr. Park was killed by the guard statues trying to flee", category: "death" }.
+
+LASER SWEEP (God Statue fires): The God Statue's eyes burn bright red. Twin laser beams fire and begin a slow rotating sweep across the entire chamber floor — clockwise, grinding, relentless — leaving scorch marks burned into stone. Any hunter still standing when the sweep reaches them is incinerated. Jinwoo follows the commandments: he presses his forehead to the cold stone, face down, arms out — prostrating completely. Those who do the same survive. Those who do not are ash. Speaker: NARRATOR. MUST output new_situation. MUST include game_actions: glow on giant_statue (red, pulse: true), ring from giant_statue (red, expanding), scorch_mark. MUST propose death candidates for any hunter incinerated by the sweep.
 """
 
 JS_GENERATION_SYSTEM_PROMPT = """

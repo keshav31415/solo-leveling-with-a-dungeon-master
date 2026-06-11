@@ -20,10 +20,18 @@ _BUFFER_COMPRESS_BATCH     = 10   # compress the oldest N turns + existing summa
 _NPC_MEMORY_MAX_ENTRIES    = 3    # max past-scene entries injected into DM prompt
 
 _EVENT_WORLD_EFFECTS: Dict[str, Dict[str, Any]] = {
-    "chamber_entered": {"chamber_entered": True},
-    "joohee_terror":   {"joohee_terror_occurred": True},
-    "commandments":    {"commandments_read": True},
-    "trap_springs":    {"entrance_door": "closed", "trap_sprung": True},
+    # legacy IDs
+    "chamber_entered":    {"chamber_entered": True},
+    "joohee_terror":      {"joohee_terror_occurred": True},
+    "commandments":       {"commandments_read": True},
+    "trap_springs":       {"entrance_door": "closed", "trap_sprung": True},
+    # descriptive IDs used by the Director
+    "chamber_revealed":   {"chamber_entered": True},
+    "statue_awakens":     {"joohee_terror_occurred": True},
+    "commandments_revealed": {"commandments_read": True},
+    "doors_seal":         {"entrance_door": "closed", "trap_sprung": True},
+    "hunter_killed_at_door": {"mr_park_dead": True},
+    "laser_sweep":        {"laser_swept": True},
 }
 
 _SCENE_ID = "double_dungeon"
@@ -310,6 +318,15 @@ class MemoryStore:
                 session.add(LoreFactRow(**data))
             session.commit()
             print(f"[LoreStore] Seeded {len(DOUBLE_DUNGEON_LORE)} lore facts.")
+
+    def reseed_lore(self) -> None:
+        from .lore_seed import DOUBLE_DUNGEON_LORE
+        with get_session() as session:
+            session.query(LoreFactRow).delete()
+            for data in DOUBLE_DUNGEON_LORE:
+                session.add(LoreFactRow(**data))
+            session.commit()
+            print(f"[LoreStore] Reseeded {len(DOUBLE_DUNGEON_LORE)} lore facts.")
 
     def get_lore_facts(
         self,

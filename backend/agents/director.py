@@ -103,7 +103,7 @@ def _fallback_events():
         ),
         PlannedEvent(
             id            = "statue_awakens",
-            description   = "Lee Joohee notices the God Statue's eyes tracking the party. It is aware — watching them. She freezes mid-step, stutters in pure terror, backs toward Jinwoo. The statue does not move — only the eyes.",
+            description   = "Lee Joohee notices the God Statue's eyes tracking the party. It is aware — watching them. She freezes mid-step, stutters in pure terror, grabs Jinwoo's arm and backs toward him specifically. NOT Song Chi-yul. The statue does not move — only the eyes.",
             trigger_type  = "position",
             trigger_value = "player.gridY < 30",
         ),
@@ -115,8 +115,20 @@ def _fallback_events():
         ),
         PlannedEvent(
             id            = "doors_seal",
-            description   = "Massive stone doors slam shut. The entrance is sealed — no escape. The divine trap triggered the moment the commandments were read. Screen shakes. The party is trapped.",
+            description   = "Massive stone doors slam shut with a sound like a mountain collapsing. The entrance is sealed — no escape. The divine trap triggered the moment the commandments were read. Screen shakes. The party is trapped.",
             trigger_type  = "chain",
             trigger_value = "commandments_revealed",
+        ),
+        PlannedEvent(
+            id            = "hunter_killed_at_door",
+            description   = "Mr. Park's composure shatters. He cannot take it — he breaks ranks and sprints for the sealed entrance. The guard statues flanking the door activate the instant he crosses the threshold and cut him down. No heroics. No last words. Sudden, violent, first death.",
+            trigger_type  = "chain",
+            trigger_value = "doors_seal",
+        ),
+        PlannedEvent(
+            id            = "laser_sweep",
+            description   = "The God Statue's eyes burn red. Twin laser beams fire and begin a slow clockwise sweep across the entire chamber floor, burning scorch marks into stone. Any hunter still standing when the sweep reaches them is incinerated. Jinwoo follows the commandments — he presses his forehead to the stone, face down, prostrating completely. Those who do the same survive.",
+            trigger_type  = "chain",
+            trigger_value = "hunter_killed_at_door",
         ),
     ]

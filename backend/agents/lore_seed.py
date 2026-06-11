@@ -189,4 +189,50 @@ DOUBLE_DUNGEON_LORE = [
         "tier": "structural",
         "temporal_status": "currently_true",
     },
+
+    # ── MANDATORY: climax beats the Director MUST generate events for ─────────────
+
+    {
+        "id": "dd_joohee_jinwoo_crisis",
+        "fact": "During the crisis, Lee Joohee gravitates to Jinwoo specifically — she clutches his arm and stays at his side. NOT Song Chi-yul's. Even though Jinwoo is E-rank, she feels inexplicably safer near him.",
+        "category": "character",
+        "scene_relevance": ["double_dungeon"],
+        "characters_involved": ["joohee", "jinwoo"],
+        "entities_involved": [],
+        "tier": "mandatory",
+        "temporal_status": "currently_true",
+    },
+    {
+        "id": "dd_hunter_door_death",
+        "fact": "After the doors seal, Mr. Park — unable to contain his terror — breaks ranks and sprints for the sealed entrance. The guard statues flanking the door activate the instant he crosses the threshold and cut him down. First death. Sudden, violent, no last words.",
+        "category": "plot",
+        "scene_relevance": ["double_dungeon"],
+        "characters_involved": ["mr_park"],
+        "entities_involved": ["entrance_door"],
+        "tier": "mandatory",
+        "temporal_status": "currently_true",
+    },
+    {
+        "id": "dd_laser_sweep",
+        "fact": "The God Statue's eyes glow red and fire twin laser beams that slowly sweep in a rotating circle across the chamber floor, leaving scorch marks burned into stone. Any hunter still standing when the sweep reaches them is incinerated. Jinwoo survives by prostrating himself face-down — forehead to the floor — following the commandments.",
+        "category": "plot",
+        "scene_relevance": ["double_dungeon"],
+        "characters_involved": ["jinwoo"],
+        "entities_involved": ["giant_statue"],
+        "tier": "mandatory",
+        "temporal_status": "currently_true",
+    },
+
+    # ── STRUCTURAL: world facts for the climax ────────────────────────────────────
+
+    {
+        "id": "dd_guard_statues",
+        "fact": "Smaller stone guard statues flank the sealed entrance door. They are dormant until the trap springs — then they activate instantly and kill any hunter who approaches the door.",
+        "category": "world",
+        "scene_relevance": ["double_dungeon"],
+        "characters_involved": [],
+        "entities_involved": ["entrance_door"],
+        "tier": "structural",
+        "temporal_status": "currently_true",
+    },
 ]

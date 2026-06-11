@@ -28,6 +28,7 @@ function isInanimateEntity(id: string): boolean {
 function App() {
   const engineRef = useRef<GameEngine | null>(null);
   const [engineReady, setEngineReady] = useState(false);
+  const [scenePlanReady, setScenePlanReady] = useState(false);
 
   // Dialogue state
   const [dialogue, setDialogue] = useState<{
@@ -50,6 +51,8 @@ function App() {
 
   // When a director event wants to chain into another event after the player dismisses dialogue
   const pendingChainRef = useRef<string | null>(null);
+  // Maps parentEventId → chainEventId (populated from scene plan)
+  const chainMapRef = useRef<Map<string, string>>(new Map());
 
   // Scene State
   const [currentSituation, setCurrentSituation] = useState(
@@ -84,34 +87,38 @@ function App() {
       handleDirectorEvent(eventName);
     });
 
-    // --- Register Double Dungeon Triggers ---
+    // Poll until the Director's scene plan is ready, then register triggers
+    engine.setInputLocked(true);
     const triggerManager = engine.getTriggerManager();
 
-    // Trigger 1: Joohee's Terror (Player walks to the middle of the room — approaching the statue)
-    triggerManager.addTrigger({
-      id: 'joohee_terror',
-      type: 'position',
-      fired: false,
-      condition: (_eng) => {
-        const player = engineRef.current?.getEntityManager().getPlayer();
-        return player != null && player.gridY < 30;
-      },
-      onFire: () => handleDirectorEvent('joohee_terror')
-    });
+    const pollScenePlan = async () => {
+      const maxAttempts = 30;
+      for (let attempt = 0; attempt < maxAttempts; attempt++) {
+        try {
+          const r = await fetch(`${API_URL}/api/scene_plan`);
+          const data = await r.json();
+          if (data.events?.length > 0) {
+            triggerManager.registerFromPlan(
+              data.events,
+              (eventId: string) => handleDirectorEvent(eventId),
+              (chainEventId: string, parentEventId: string) => {
+                chainMapRef.current.set(parentEventId, chainEventId);
+              }
+            );
+            setScenePlanReady(true);
+            engine.setInputLocked(false);
+            return;
+          }
+        } catch {}
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+      // Fallback after all attempts exhausted
+      setScenePlanReady(true);
+      engine.setInputLocked(false);
+      setTimeout(() => handleDirectorEvent('chamber_revealed'), 800);
+    };
 
-    // Trigger 2: The Commandments (Player interacts with stone tablet)
-    triggerManager.addTrigger({
-      id: 'commandments',
-      type: 'action',
-      fired: false,
-      condition: (_eng, state) => {
-        return state.itemsInspected.includes('stone_tablet');
-      },
-      onFire: () => handleDirectorEvent('commandments')
-    });
-
-    // Fire chamber_entered immediately — the party just stepped into the dungeon
-    setTimeout(() => handleDirectorEvent('chamber_entered'), 800);
+    pollScenePlan();
 
     return () => {
       engine.destroy();
@@ -224,9 +231,10 @@ function App() {
         setCurrentSituation(data.new_situation);
       }
 
-      // Queue trap_springs to fire after the player dismisses this dialogue
-      if (eventName === 'commandments') {
-        pendingChainRef.current = 'trap_springs';
+      // If this event has a chain successor, queue it for after dialogue is dismissed
+      const chainSuccessor = chainMapRef.current.get(eventName);
+      if (chainSuccessor) {
+        pendingChainRef.current = chainSuccessor;
       }
 
     } catch (error) {
@@ -480,6 +488,13 @@ function App() {
           }}
         >
           {engineReady && <GameCanvas engineRef={engineRef} />}
+
+          {!scenePlanReady && (
+            <div className="scene-loading-overlay">
+              <p className="scene-loading-title">The Dungeon Master is preparing the scene...</p>
+              <p className="scene-loading-sub">Please wait</p>
+            </div>
+          )}
 
           <DialogueBox
             text={dialogue.text}

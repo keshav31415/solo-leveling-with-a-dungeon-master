@@ -91,16 +91,12 @@ def generate_json(system_prompt: str, user_prompt: str) -> dict:
         return {"error": f"[SYSTEM ERROR]: LLM failed: {error_msg}"}
 
 def generate_json_background(system_prompt: str, user_prompt: str) -> dict:
-    """OpenRouter free-tier call for background tasks (profile extraction, validation).
-    No tracing — these are non-critical background writes."""
-    if not _openrouter_client:
-        print("WARNING: OPENROUTER_API_KEY not found.")
-        return {}
-
-    for model_name in _BACKGROUND_MODELS:
+    """Background task calls — Groq fast model first, OpenRouter free tier as fallback."""
+    # Groq fast model is ~0.5s and doesn't block real-time calls meaningfully
+    if client:
         try:
-            response = _openrouter_client.chat.completions.create(
-                model=model_name,
+            response = client.chat.completions.create(
+                model="llama-3.1-8b-instant",
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user",   "content": user_prompt},
@@ -108,11 +104,27 @@ def generate_json_background(system_prompt: str, user_prompt: str) -> dict:
                 response_format={"type": "json_object"},
                 temperature=0.3,
             )
-            text = response.choices[0].message.content
-            return json.loads(text)
+            return json.loads(response.choices[0].message.content)
         except Exception as e:
-            print(f"[OpenRouter] {model_name} failed: {e}")
-            continue
+            print(f"[Background] Groq failed: {e}, trying OpenRouter...")
+
+    # OpenRouter fallback (slower free tier)
+    if _openrouter_client:
+        for model_name in _BACKGROUND_MODELS:
+            try:
+                response = _openrouter_client.chat.completions.create(
+                    model=model_name,
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user",   "content": user_prompt},
+                    ],
+                    response_format={"type": "json_object"},
+                    temperature=0.3,
+                )
+                return json.loads(response.choices[0].message.content)
+            except Exception as e:
+                print(f"[OpenRouter] {model_name} failed: {e}")
+                continue
 
     return {}
 

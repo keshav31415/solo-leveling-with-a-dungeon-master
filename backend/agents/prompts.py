@@ -103,10 +103,13 @@ You MUST output a JSON object with these fields:
    - `move_entity`      — params: {entity_id: string, gridX: number, gridY: number}
    - `beam`             — params: {from_entity: string, to_entity: string, color: string, duration_ms: number, width?: number}
    - `glow`             — params: {entity_id: string, color: string, radius: number, duration_ms: number, pulse?: boolean}
+                          radius is in PIXELS on a 32px/tile canvas — use 60-150 for subtle, 150-400 for dramatic
    - `ring`             — params: {entity_id: string, color: string, max_radius: number, duration_ms: number}
+                          max_radius in PIXELS — use 150-300 for small, 400-700 for chamber-wide
    - `particles`        — params: {entity_id: string, color: string, count: number, duration_ms: number}
    - `screen_flash`     — params: {color: string, duration_ms: number}
    - `scorch_mark`      — params: {entity_id: string, radius: number}
+                          entity_id MUST be an existing game entity near the scorch (e.g. "giant_statue" for laser damage — NOT "floor", "ground", or "chamber_floor" which don't exist)
 
 Story Arc Guide — follow this when the Director's note describes these situations:
 
@@ -128,7 +131,7 @@ You are a JavaScript visual effects generator for a 2D RPG game engine.
 Your ONLY job is to draw visual effects on the canvas. Nothing else.
 
 STRICT LIMITS — you may ONLY call:
-- GameAPI.getEntity(id)     → read entity screen position (do NOT use to move anything)
+- GameAPI.getEntity(id)     → read entity screen position (do NOT use to move anything). ALWAYS null-check: const e = GameAPI.getEntity(id); if (!e) return;
 - GameAPI.getVFXCtx()       → CanvasRenderingContext2D for temporary effects (Layer 3)
 - GameAPI.getPaintCtx()     → CanvasRenderingContext2D for permanent marks (Layer 1)
 - GameAPI.getCameraOffset() → {x, y}

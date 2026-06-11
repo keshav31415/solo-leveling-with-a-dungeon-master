@@ -1,5 +1,7 @@
 import json
 import logging
+import threading
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from langsmith import traceable
 
@@ -27,7 +29,8 @@ class DirectorAgent:
                 logger.info("Scene plan already exists — skipping regeneration.")
                 return existing
 
-        self._extract_missing_profiles()
+        # Fire extraction in background — don't block plan generation
+        threading.Thread(target=self._extract_missing_profiles, daemon=True).start()
 
         user_prompt = self._build_user_prompt()
         raw = generate_json(DIRECTOR_SYSTEM_PROMPT, user_prompt)
@@ -53,15 +56,28 @@ class DirectorAgent:
     def _extract_missing_profiles(self) -> None:
         config  = get_scene_config(_SCENE_ID)
         missing = self.memory.get_missing_profiles(config["characters"], config["arc"])
-        for char_id in missing:
+        if not missing:
+            return
+
+        def extract_one(char_id: str) -> None:
             user_prompt = f"Character: {char_id}\nArc: {config['arc']}"
             raw = generate_json_background(CHARACTER_PROFILE_EXTRACTION_PROMPT, user_prompt)
             profile = raw.get("profile", "")
             if profile:
                 self.memory.save_character_profile(char_id, config["arc"], profile)
-                print(f"[Profiles] Extracted profile for {char_id}")
+                print(f"[Profiles] Extracted: {char_id}")
             else:
-                print(f"[Profiles] Extraction returned empty for {char_id}")
+                print(f"[Profiles] Empty result for {char_id}")
+
+        # All characters extracted in parallel — each thread tries Groq first,
+        # falls through to OpenRouter if rate-limited, distributing load naturally
+        with ThreadPoolExecutor(max_workers=len(missing)) as executor:
+            futures = {executor.submit(extract_one, cid): cid for cid in missing}
+            for future in as_completed(futures):
+                try:
+                    future.result()
+                except Exception as e:
+                    print(f"[Profiles] Failed: {e}")
 
     def _validate_plan(self, events: list) -> list:
         config   = get_scene_config(_SCENE_ID)

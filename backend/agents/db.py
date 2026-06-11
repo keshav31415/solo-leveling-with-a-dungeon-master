@@ -75,6 +75,16 @@ class ScenePlanRow(Base):
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
 
+class CharacterProfileRow(Base):
+    __tablename__ = "character_profiles"
+
+    id           = Column(String, primary_key=True)  # f"{character_id}__{arc}"
+    character_id = Column(String, nullable=False)
+    arc          = Column(String, nullable=False)
+    profile      = Column(String, nullable=False)
+    extracted_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+
 class LoreFactRow(Base):
     __tablename__ = "lore_facts"
 

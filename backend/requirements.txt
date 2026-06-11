@@ -3,6 +3,7 @@ uvicorn[standard]
 python-dotenv
 pydantic
 groq
+openai
 langsmith
 sqlalchemy
 psycopg2-binary

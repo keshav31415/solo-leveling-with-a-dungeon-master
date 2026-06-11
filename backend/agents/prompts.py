@@ -38,6 +38,19 @@ Name events narratively — use descriptive snake_case IDs like "chamber_reveale
 - The first event MUST be auto-triggered (delay_ms 800) — the party just entered
 - The commandments event MUST be interact-triggered on stone_tablet
 - The door-sealing event MUST be chain-triggered after the commandments event
+
+## Output Fields
+Each event object MUST include:
+- `id`: descriptive snake_case string
+- `description`: 1-2 sentence summary of what happens
+- `trigger_type` and `trigger_value` / `delay_ms` as appropriate
+- `npc_reactions`: object mapping npc_id → their specific reaction for this event.
+  Fill this for EVERY NPC who is present and reacts. Use the character profiles provided
+  to write accurate, in-character reactions. Leave empty `{}` only if no NPCs react.
+- `visual_notes`: string describing any visual constraints or non-obvious specifics
+  the DM must follow (e.g. "statue body remains completely still — only the eyes move").
+  Omit or null if nothing non-obvious.
+- `speaker`: "NARRATOR" for cinematic events, or the NPC's label if one NPC speaks
 """
 
 DM_SYSTEM_PROMPT = """
@@ -187,6 +200,42 @@ Drop: filler, repeated points, pleasantries.
 
 Output JSON with exactly one field:
 {"summary": "..."}
+"""
+
+CHARACTER_PROFILE_EXTRACTION_PROMPT = """
+You are helping build an AI-driven RPG based on Solo Leveling.
+
+The game has two AI agents — a Director that plans story events, and a Dungeon Master
+that narrates them. Both need accurate character profiles to generate believable,
+in-character behavior.
+
+Using your knowledge of the Solo Leveling source material, generate a character profile
+for the given character in the given arc.
+
+Write it specifically for an AI Director that will be generating event descriptions
+involving this character. Include whatever you judge most important for the Director to
+get this character right — especially anything non-obvious or likely to be defaulted
+incorrectly based on generic fiction tropes.
+
+Output JSON with exactly one field:
+{"profile": "..."}
+"""
+
+PLAN_VALIDATION_PROMPT = """
+You are a quality-control agent for an AI-driven Solo Leveling RPG.
+
+A Director agent has generated NPC reactions for a story event. Your job is to check
+whether each reaction is consistent with that character's established profile.
+
+A violation is any reaction that contradicts the character's personality, relationships,
+or behavioral patterns as described in their profile.
+
+Output JSON:
+{
+  "violations": ["description of violation 1", ...],
+  "valid": true
+}
+Return an empty violations list and valid: true if everything checks out.
 """
 
 PROMOTION_SYSTEM_PROMPT = """

@@ -151,16 +151,13 @@ class NPCMovementDirective(BaseModel):
 
 class PlannedEvent(BaseModel):
     id:            str
-    description:   str                    # director's note for the DM
+    description:   str                    # brief summary of what happens
     trigger_type:  Literal["auto", "position", "interact", "chain", "action_count"]
-    trigger_value: Optional[str]  = None  # depends on type (see below)
-    delay_ms:      Optional[int]  = None  # for trigger_type="auto"
-    # trigger_value semantics:
-    #   position     → "player.gridY < 30"
-    #   interact     → entity_id string e.g. "stone_tablet"
-    #   chain        → event_id to chain after e.g. "commandments"
-    #   action_count → number as string e.g. "5"
-    #   auto         → null (use delay_ms instead)
+    trigger_value: Optional[str]  = None
+    delay_ms:      Optional[int]  = None
+    npc_reactions: Dict[str, str] = {}    # npc_id → specific in-character reaction
+    visual_notes:  Optional[str]  = None  # visual constraints for the DM ("only eyes move")
+    speaker:       str            = "NARRATOR"
 
 class ScenePlan(BaseModel):
     scene_id: str

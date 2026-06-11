@@ -68,7 +68,7 @@ def handle_action(action: PlayerAction, state: GameState):
     instructions = dict(current_director_instructions)
 
     if action.action_type == "director_event":
-        instructions["director_note"] = director.get_director_note(action.target or "")
+        instructions["director_event"] = director.get_director_event(action.target or "")
 
     return dm.handle_action(state.model_dump(), instructions, action.model_dump())
 

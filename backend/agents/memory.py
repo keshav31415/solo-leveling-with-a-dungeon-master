@@ -11,6 +11,7 @@ from .schemas import (
 from .db import (
     get_session, init_db,
     RuntimeMemoryRow, SceneChronicleRow, StoryCanonRow, NPCMemoryRow, LoreFactRow,
+    CharacterProfileRow,
 )
 
 _MAX_CANDIDATES          = 100
@@ -359,6 +360,37 @@ class MemoryStore:
                     superseded_by       = r.superseded_by,
                 ))
             return facts
+
+    # ── Character profiles ─────────────────────────────────────────────────────
+
+    def get_character_profiles(self, character_ids: List[str], arc: str) -> Dict[str, str]:
+        with get_session() as session:
+            profiles = {}
+            for char_id in character_ids:
+                row = session.get(CharacterProfileRow, f"{char_id}__{arc}")
+                if row:
+                    profiles[char_id] = row.profile
+            return profiles
+
+    def get_missing_profiles(self, character_ids: List[str], arc: str) -> List[str]:
+        with get_session() as session:
+            return [
+                char_id for char_id in character_ids
+                if not session.get(CharacterProfileRow, f"{char_id}__{arc}")
+            ]
+
+    def save_character_profile(self, character_id: str, arc: str, profile: str) -> None:
+        from datetime import datetime, timezone
+        with get_session() as session:
+            row = CharacterProfileRow(
+                id           = f"{character_id}__{arc}",
+                character_id = character_id,
+                arc          = arc,
+                profile      = profile,
+                extracted_at = datetime.now(timezone.utc),
+            )
+            session.merge(row)
+            session.commit()
 
     def supersede_lore_fact(self, lore_fact_id: str, canon_fact_id: str) -> None:
         with get_session() as session:

@@ -48,29 +48,43 @@ class DMAgent:
                 )
         return "\n".join(lines) if lines else "  (no NPCs)"
 
-    def _build_narrative_prompt(self, state: Dict[str, Any], action: Dict[str, Any], director_note: str = "") -> str:
+    def _build_narrative_prompt(self, state: Dict[str, Any], action: Dict[str, Any], director_event: dict = {}) -> str:
         action_type = action.get("action_type", "")
         target_id   = action.get("target", "")
 
         if action_type == "director_event":
-            return self._director_event_prompt(target_id, state, director_note)
+            return self._director_event_prompt(target_id, state, director_event)
         if action_type == "interact":
             return self._interact_prompt(state, action, target_id)
 
         return f"Current Game State:\n{state}\n\nPlayer's Action:\n{action}\n\nGenerate the response."
 
-    def _director_event_prompt(self, event_name: str, state: Dict[str, Any], director_note: str = "") -> str:
+    def _director_event_prompt(self, event_name: str, state: Dict[str, Any], director_event: dict = {}) -> str:
         ctx = self.memory.get_event_context()
 
         world_block     = "\n".join(f"  {k}: {v}" for k, v in ctx["world_state"].items()) or "  (none yet)"
         events_block    = "\n".join(f"  - {e}" for e in ctx["events_fired"]) or "  (none yet)"
         knowledge_block = "\n".join(f"  - {k}" for k in ctx["knowledge"]) or "  (none yet)"
         npc_block       = self._npc_positions_block(state.get("entity_states", {}))
-        note_block      = f"\nDirector's note (execute this — do not deviate):\n  {director_note}\n" if director_note else ""
         lore_block      = "\n".join(f"  - {f}" for f in ctx.get("lore_facts", [])) or "  (none)"
 
+        description    = director_event.get("description", "")
+        npc_reactions  = director_event.get("npc_reactions", {})
+        visual_notes   = director_event.get("visual_notes", "")
+        speaker        = director_event.get("speaker", "NARRATOR")
+
+        note_block = f"\nDirector's note (execute this — do not deviate):\n  {description}\n" if description else ""
+
+        reactions_block = ""
+        if npc_reactions:
+            lines = "\n".join(f"  {npc}: {reaction}" for npc, reaction in npc_reactions.items())
+            reactions_block = f"\nNPC REACTIONS — write these exactly as described:\n{lines}\n"
+
+        visual_block = f"\nVISUAL CONSTRAINT — follow exactly:\n  {visual_notes}\n" if visual_notes else ""
+
         return f"""Event to narrate: {event_name}
-{note_block}
+Speaker: {speaker}
+{note_block}{reactions_block}{visual_block}
 Current situation:
   {ctx["situation"] or "(scene just started)"}
 
@@ -266,8 +280,8 @@ React to THIS action. Your response MUST reflect the world state."""
         target_id   = action.get("target", "")
 
         # ── Call 1: Narrative ──────────────────────────────────────────────────
-        director_note    = _instructions.get("director_note", "")
-        narrative_prompt = self._build_narrative_prompt(state, action, director_note)
+        director_event   = _instructions.get("director_event", {})
+        narrative_prompt = self._build_narrative_prompt(state, action, director_event)
         raw = generate_json(DM_SYSTEM_PROMPT, narrative_prompt)
         print("--- NARRATIVE RESPONSE ---")
         print(raw)

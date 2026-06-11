@@ -1,21 +1,32 @@
 import os
 import json
 from groq import Groq
+from openai import OpenAI as OpenAIClient
 from dotenv import load_dotenv
 from langsmith import traceable
 
 # Load env, checking multiple potential locations
 load_dotenv(override=True)
 if not os.getenv("GROQ_API_KEY"):
-    # Try looking in root folder from agents/
     load_dotenv(os.path.join(os.path.dirname(__file__), "../.env"), override=True)
 if not os.getenv("GROQ_API_KEY"):
-    # Try looking in root folder from backend/
     load_dotenv(os.path.join(os.path.dirname(__file__), "../../.env"), override=True)
 
-# Configure Groq
-api_key = os.getenv("GROQ_API_KEY")
-client = Groq(api_key=api_key) if api_key else None
+# Groq — real-time DM and Director responses
+groq_key = os.getenv("GROQ_API_KEY")
+client = Groq(api_key=groq_key) if groq_key else None
+
+# OpenRouter — background tasks (profile extraction, validation)
+openrouter_key = os.getenv("OPENROUTER_API_KEY")
+_openrouter_client = OpenAIClient(
+    api_key=openrouter_key,
+    base_url="https://openrouter.ai/api/v1",
+) if openrouter_key else None
+
+_BACKGROUND_MODELS = [
+    "google/gemini-2.0-flash-exp:free",
+    "meta-llama/llama-3.3-70b-instruct:free",
+]
     
 @traceable(run_type="llm", name="Groq Call")
 def generate_json(system_prompt: str, user_prompt: str) -> dict:
@@ -78,6 +89,33 @@ def generate_json(system_prompt: str, user_prompt: str) -> dict:
                     specific_reason = "Rate limit reached" + parts[1].split("Please try again")[0] + "Please try again shortly."
             return {"error": f"[SYSTEM WARNING]: {specific_reason}"}
         return {"error": f"[SYSTEM ERROR]: LLM failed: {error_msg}"}
+
+def generate_json_background(system_prompt: str, user_prompt: str) -> dict:
+    """OpenRouter free-tier call for background tasks (profile extraction, validation).
+    No tracing — these are non-critical background writes."""
+    if not _openrouter_client:
+        print("WARNING: OPENROUTER_API_KEY not found.")
+        return {}
+
+    for model_name in _BACKGROUND_MODELS:
+        try:
+            response = _openrouter_client.chat.completions.create(
+                model=model_name,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user",   "content": user_prompt},
+                ],
+                response_format={"type": "json_object"},
+                temperature=0.3,
+            )
+            text = response.choices[0].message.content
+            return json.loads(text)
+        except Exception as e:
+            print(f"[OpenRouter] {model_name} failed: {e}")
+            continue
+
+    return {}
+
 
 def mock_llm_response(system_prompt: str) -> dict:
     """Provides a mock response if the API key is missing."""

@@ -1,10 +1,12 @@
+import json
 import logging
 
 from langsmith import traceable
 
-from .llm import generate_json
-from .prompts import DIRECTOR_SYSTEM_PROMPT
+from .llm import generate_json, generate_json_background
+from .prompts import DIRECTOR_SYSTEM_PROMPT, CHARACTER_PROFILE_EXTRACTION_PROMPT, PLAN_VALIDATION_PROMPT
 from .schemas import ScenePlan, PlannedEvent
+from .scene_config import get_scene_config
 from .db import get_session, ScenePlanRow, init_db
 
 logger = logging.getLogger(__name__)
@@ -25,6 +27,8 @@ class DirectorAgent:
                 logger.info("Scene plan already exists — skipping regeneration.")
                 return existing
 
+        self._extract_missing_profiles()
+
         user_prompt = self._build_user_prompt()
         raw = generate_json(DIRECTOR_SYSTEM_PROMPT, user_prompt)
         print("--- DIRECTOR SCENE PLAN ---")
@@ -40,27 +44,79 @@ class DirectorAgent:
             logger.warning("Director returned empty events — using fallback.")
             events = _fallback_events()
 
+        events = self._validate_plan(events)
+
         plan = ScenePlan(scene_id=_SCENE_ID, events=events)
         self._save(plan)
         return plan
 
+    def _extract_missing_profiles(self) -> None:
+        config  = get_scene_config(_SCENE_ID)
+        missing = self.memory.get_missing_profiles(config["characters"], config["arc"])
+        for char_id in missing:
+            user_prompt = f"Character: {char_id}\nArc: {config['arc']}"
+            raw = generate_json_background(CHARACTER_PROFILE_EXTRACTION_PROMPT, user_prompt)
+            profile = raw.get("profile", "")
+            if profile:
+                self.memory.save_character_profile(char_id, config["arc"], profile)
+                print(f"[Profiles] Extracted profile for {char_id}")
+            else:
+                print(f"[Profiles] Extraction returned empty for {char_id}")
+
+    def _validate_plan(self, events: list) -> list:
+        config   = get_scene_config(_SCENE_ID)
+        profiles = self.memory.get_character_profiles(config["characters"], config["arc"])
+        if not profiles:
+            return events
+
+        for event in events:
+            if not event.npc_reactions:
+                continue
+            reactions_to_check = {
+                npc: reaction
+                for npc, reaction in event.npc_reactions.items()
+                if npc in profiles
+            }
+            if not reactions_to_check:
+                continue
+
+            user_prompt = (
+                f"Event: {event.id}\n"
+                f"NPC reactions:\n{json.dumps(reactions_to_check, indent=2)}\n\n"
+                f"Character profiles:\n"
+                + "\n".join(f"[{npc}]: {profiles[npc]}" for npc in reactions_to_check)
+            )
+            result = generate_json_background(PLAN_VALIDATION_PROMPT, user_prompt)
+            violations = result.get("violations", [])
+            if violations:
+                logger.warning("[Validation] Event '%s' violations: %s", event.id, violations)
+
+        return events
+
     def _build_user_prompt(self) -> str:
+        config      = get_scene_config(_SCENE_ID)
         mandatory   = self.memory.get_lore_facts(_SCENE_ID, tiers=["mandatory"])
         structural  = self.memory.get_lore_facts(_SCENE_ID, tiers=["structural"])
-
-        # Filter structural to world/rule facts only (character profiles are for DM, not Director)
         world_rules = [f for f in structural if f.category in ("world", "rule")]
+        profiles    = self.memory.get_character_profiles(config["characters"], config["arc"])
 
-        beats_text = "\n".join(f"  - {f.fact}" for f in mandatory)
-        rules_text = "\n".join(f"  - {f.fact}" for f in world_rules)
+        beats_text    = "\n".join(f"  - {f.fact}" for f in mandatory)
+        rules_text    = "\n".join(f"  - {f.fact}" for f in world_rules)
+        profiles_text = "\n\n".join(
+            f"  [{char_id.upper()}]\n  {profile}"
+            for char_id, profile in profiles.items()
+        ) or "  (not yet extracted — use source material knowledge)"
 
         return f"""Generate the scene plan for the Double Dungeon.
 
 MANDATORY STORY BEATS — generate events that collectively cover ALL of these:
 {beats_text or '  (none loaded — use your knowledge of the arc)'}
 
-STRUCTURAL RULES — the DM needs these for accurate narration (include relevant ones in event descriptions):
+STRUCTURAL RULES — the DM needs these for accurate narration:
 {rules_text or '  (none loaded)'}
+
+CHARACTER PROFILES — use these when writing npc_reactions for each event:
+{profiles_text}
 """
 
     def get_scene_plan(self) -> ScenePlan | None:
@@ -73,14 +129,14 @@ STRUCTURAL RULES — the DM needs these for accurate narration (include relevant
                 events   = [PlannedEvent.model_validate(e) for e in (row.events or [])],
             )
 
-    def get_director_note(self, event_id: str) -> str:
+    def get_director_event(self, event_id: str) -> dict:
         plan = self.get_scene_plan()
         if not plan:
-            return ""
+            return {}
         for event in plan.events:
             if event.id == event_id:
-                return event.description
-        return ""
+                return event.model_dump()
+        return {}
 
     def _save(self, plan: ScenePlan) -> None:
         with get_session() as session:
